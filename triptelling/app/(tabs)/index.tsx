@@ -7,11 +7,13 @@ import { ThemedView } from '@/components/ThemedView';
 import Homepage from '@/components/Homepage';
 import GrabLogin from '@/components/Login_v2';
 import AccountCreation from '@/components/AccountCreation';
+import MainMenu from '@/components/TripTelligentMenu';
 
 export default function HomeScreen() {
   return (
+    <MainMenu/>
     // <AccountCreation/>
-    <GrabLogin/>
+    // <GrabLogin/>
     // <Login/>
     //<Homepage/>
     // <ParallaxScrollView

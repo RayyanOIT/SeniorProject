@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Pressable, Text, View, StyleSheet, TextInput, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { useEffect } from "react";
 
 const Button: React.FC<{ title: string; backgroundColor: string; textColor: string; onPress: () => void }> = ({ title, backgroundColor, textColor, onPress }) => (
   <Pressable
@@ -20,6 +21,30 @@ const GrabLogin: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  const [notesData, setNotesData] = useState([]);
+
+  const loadNotesData = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/users");
+      if (!response.ok) {
+        console.error("Failed to fetch users data from server", response.statusText);
+        setNotesData([]);
+        return; 
+      }
+      const data = await response.json();
+      setNotesData(data);
+      console.log("Notes data loaded", data["docs"][0]["email"]);
+    } catch (error) {
+      console.error("Error fetching notes data:", error);
+      setNotesData([]);
+    }
+  };
+
+  useEffect(() => {
+    console.log("HEY")
+    loadNotesData();
+  }, []);
+
   const handleLogin = () => {
     if (!username || !password) {
       Alert.alert("Error", "Please fill in both fields.");
@@ -31,8 +56,8 @@ const GrabLogin: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Grab</Text>
-        <Text style={styles.subtitle}>Your everyday everything app</Text>
+        <Text style={styles.title}>TripTelligent</Text>
+        <Text style={styles.subtitle}>Plan YOUR Vacation</Text>
         
         <TextInput
           style={styles.input}
