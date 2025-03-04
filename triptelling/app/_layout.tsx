@@ -29,8 +29,14 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* ✅ Bottom Tabs Navigator */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
+        {/* ✅ Itineraries Route (Accessible, but NOT in bottom menu) */}
+        <Stack.Screen name="itineraries" options={{ title: 'Itineraries', headerShown: true }} />
+
+        {/* ✅ Not Found Route */}
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

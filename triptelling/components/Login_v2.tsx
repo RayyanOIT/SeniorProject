@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Pressable, Text, View, StyleSheet, TextInput, Alert } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router"; // ✅ Correct navigation for expo-router
 import { FontAwesome5 } from "@expo/vector-icons";
-import { useEffect } from "react";
 
 const Button: React.FC<{ title: string; backgroundColor: string; textColor: string; onPress: () => void }> = ({ title, backgroundColor, textColor, onPress }) => (
   <Pressable
@@ -17,10 +16,9 @@ const Button: React.FC<{ title: string; backgroundColor: string; textColor: stri
 );
 
 const GrabLogin: React.FC = () => {
-  const navigation = useNavigation();
+  const router = useRouter(); // ✅ Use expo-router for navigation
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const [notesData, setNotesData] = useState([]);
 
   const loadNotesData = async () => {
@@ -50,7 +48,13 @@ const GrabLogin: React.FC = () => {
       Alert.alert("Error", "Please fill in both fields.");
       return;
     }
-    Alert.alert("Success", "Login successful!");
+
+    if (password === "testing") {
+      Alert.alert("Success", "Redirecting to Itineraries...");
+      router.push("/itineraries");
+    } else {
+      Alert.alert("Error", "Incorrect password. Please try again.");
+    }
   };
 
   return (
@@ -83,7 +87,8 @@ const GrabLogin: React.FC = () => {
           <View style={styles.divider} />
         </View>
         
-        <Button title="Create Account" backgroundColor="#9370DB" textColor="white" onPress={() => navigation.navigate("AccountCreation")} />
+        {/* ✅ Navigate to the /signup page when "Create Account" is clicked */}
+        <Button title="Create Account" backgroundColor="#9370DB" textColor="white" onPress={() => router.push("/signup")} />
       </View>
     </View>
   );
