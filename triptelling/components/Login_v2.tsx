@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Pressable, Text, View, StyleSheet, TextInput, Alert } from "react-native";
-import { useRouter } from "expo-router"; // ✅ Correct navigation for expo-router
-import { FontAwesome5 } from "@expo/vector-icons";
+
+import React, { useState } from "react";
+import { View, Text, TextInput, Pressable, Alert, StyleSheet } from "react-native";
+import { useRouter } from "expo-router"; // ✅ Expo Router for navigation
+import { auth } from "../FirebaseConfig";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const Button: React.FC<{ title: string; backgroundColor: string; textColor: string; onPress: () => void }> = ({ title, backgroundColor, textColor, onPress }) => (
   <Pressable
@@ -15,80 +17,58 @@ const Button: React.FC<{ title: string; backgroundColor: string; textColor: stri
   </Pressable>
 );
 
-const GrabLogin: React.FC = () => {
-  const router = useRouter(); // ✅ Use expo-router for navigation
-  const [username, setUsername] = useState("");
+const Login = () => {
+  const router = useRouter(); // ✅ Navigation using expo-router
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [notesData, setNotesData] = useState([]);
 
-  const loadNotesData = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/api/users");
-      if (!response.ok) {
-        console.error("Failed to fetch users data from server", response.statusText);
-        setNotesData([]);
-        return; 
-      }
-      const data = await response.json();
-      setNotesData(data);
-      console.log("Notes data loaded", data["docs"][0]["email"]);
-    } catch (error) {
-      console.error("Error fetching notes data:", error);
-      setNotesData([]);
-    }
-  };
-
-  useEffect(() => {
-    console.log("HEY")
-    loadNotesData();
-  }, []);
-
-  const handleLogin = () => {
-    if (!username || !password) {
-      Alert.alert("Error", "Please fill in both fields.");
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password.");
       return;
     }
 
-    if (password === "testing") {
-      Alert.alert("Success", "Redirecting to Itineraries...");
+    try {
+      // ✅ Authenticate with Firebase
+      await signInWithEmailAndPassword(auth, email, password);
+      Alert.alert("Success", "Login successful!");
+      
+      // ✅ Redirect to the dashboard or home screen
       router.push("/itineraries");
-    } else {
-      Alert.alert("Error", "Incorrect password. Please try again.");
+    } catch (error: any) {
+      console.error("Login error:", error);
+      Alert.alert("Login Failed", error.message || "Invalid credentials.");
     }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>TripTelligent</Text>
-        <Text style={styles.subtitle}>Plan YOUR Vacation</Text>
-        
+        <Text style={styles.title}>Login</Text>
+        <Text style={styles.subtitle}>Access your account</Text>
+
         <TextInput
           style={styles.input}
-          placeholder="Username"
+          placeholder="Email"
           placeholderTextColor="gray"
-          value={username}
-          onChangeText={setUsername}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
         />
         <TextInput
           style={styles.input}
           placeholder="Password"
           placeholderTextColor="gray"
-          secureTextEntry
           value={password}
           onChangeText={setPassword}
+          secureTextEntry={true}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
         
         <Button title="Login" backgroundColor="#9370DB" textColor="white" onPress={handleLogin} />
-        
-        <View style={styles.dividerContainer}>
-          <View style={styles.divider} />
-          <Text style={styles.orText}>or</Text>
-          <View style={styles.divider} />
-        </View>
-        
-        {/* ✅ Navigate to the /signup page when "Create Account" is clicked */}
-        <Button title="Create Account" backgroundColor="#9370DB" textColor="white" onPress={() => router.push("/signup")} />
       </View>
     </View>
   );
@@ -97,44 +77,45 @@ const GrabLogin: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#9370DB',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#9370DB",
   },
   card: {
-    width: '80%',
+    width: "80%",
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#9370DB',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#9370DB",
+    textAlign: "center",
+    marginBottom: 10,
   },
   subtitle: {
-    color: 'gray',
-    textAlign: 'center',
+    color: "gray",
+    textAlign: "center",
     marginBottom: 20,
   },
   input: {
-    width: '100%',
+    width: "100%",
     padding: 10,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderRadius: 5,
     marginBottom: 10,
     fontSize: 16,
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     padding: 12,
     borderRadius: 8,
     marginVertical: 5,
@@ -144,22 +125,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: 'bold',
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 15,
-  },
-  divider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'gray',
-  },
-  orText: {
-    marginHorizontal: 10,
-    color: 'gray',
+    fontWeight: "bold",
   },
 });
 
-export default GrabLogin;
+export default Login;

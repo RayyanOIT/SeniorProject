@@ -1,0 +1,52 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.pnpm-debug.log*
+.DS_Store
+
+# Build files
+/dist
+/build
+.expo/
+.expo-shared/
+
+# Firebase credentials (security risk if committed)
+triptelling/FirebaseConfig.ts
+triptelling/FirestoreService.ts
+
+# iOS
+ios/Pods/
+ios/build/
+*.xcworkspace
+*.xcodeproj/project.xcworkspace
+*.xcuserdata
+!ios/Podfile
+
+# Android
+android/.gradle/
+android/app/build/
+android/.idea/
+android/local.properties
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Environment variables (security-sensitive)
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs
+*.log
+*.lock
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
