@@ -1,7 +1,15 @@
-
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, Alert, StyleSheet } from "react-native";
-import { useRouter } from "expo-router"; // ✅ Expo Router for navigation
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Alert,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { useRouter } from "expo-router";
 import { auth } from "../FirebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
@@ -12,13 +20,14 @@ const Button: React.FC<{ title: string; backgroundColor: string; textColor: stri
       { backgroundColor },
       pressed && styles.buttonHover,
     ]}
-    onPress={onPress}>
+    onPress={onPress}
+  >
     <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text>
   </Pressable>
 );
 
 const Login = () => {
-  const router = useRouter(); // ✅ Navigation using expo-router
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -29,12 +38,9 @@ const Login = () => {
     }
 
     try {
-      // ✅ Authenticate with Firebase
       await signInWithEmailAndPassword(auth, email, password);
       Alert.alert("Success", "Login successful!");
-      
-      // ✅ Redirect to the dashboard or home screen
-      router.push("/itineraries");
+      router.push("/landing");
     } catch (error: any) {
       console.error("Login error:", error);
       Alert.alert("Login Failed", error.message || "Invalid credentials.");
@@ -42,7 +48,10 @@ const Login = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={styles.container}
+    >
       <View style={styles.card}>
         <Text style={styles.title}>Login</Text>
         <Text style={styles.subtitle}>Access your account</Text>
@@ -50,7 +59,7 @@ const Login = () => {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="gray"
+          placeholderTextColor="#aaa"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -60,68 +69,76 @@ const Login = () => {
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor="gray"
+          placeholderTextColor="#aaa"
           value={password}
           onChangeText={setPassword}
           secureTextEntry={true}
           autoCapitalize="none"
           autoCorrect={false}
         />
-        
-        <Button title="Login" backgroundColor="#9370DB" textColor="white" onPress={handleLogin} />
+
+        <Button
+          title="Login"
+          backgroundColor="#000"
+          textColor="white"
+          onPress={handleLogin}
+        />
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f6f6f6",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#9370DB",
+    padding: 20,
   },
   card: {
-    width: "80%",
-    padding: 20,
+    width: "100%",
+    maxWidth: 380,
+    padding: 24,
     backgroundColor: "white",
-    borderRadius: 10,
+    borderRadius: 20,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowOpacity: 0.06,
+    shadowRadius: 15,
+    elevation: 3,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#9370DB",
+    color: "#111",
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   subtitle: {
-    color: "gray",
+    color: "#666",
     textAlign: "center",
     marginBottom: 20,
   },
   input: {
     width: "100%",
-    padding: 10,
+    padding: 14,
     borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 5,
-    marginBottom: 10,
+    borderColor: "#ddd",
+    borderRadius: 14,
+    marginBottom: 14,
     fontSize: 16,
+    backgroundColor: "#fff",
   },
   button: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    padding: 12,
-    borderRadius: 8,
-    marginVertical: 5,
+    padding: 14,
+    borderRadius: 14,
+    marginTop: 10,
   },
   buttonHover: {
-    opacity: 0.7,
+    opacity: 0.8,
   },
   buttonText: {
     fontSize: 16,

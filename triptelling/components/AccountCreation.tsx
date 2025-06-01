@@ -1,20 +1,24 @@
 import React, { useState } from "react";
-import { Pressable, Text, View, StyleSheet, TextInput, Alert } from "react-native";
-import { useRouter } from "expo-router"; // ✅ Correct navigation for expo-router
+import {
+  Pressable,
+  Text,
+  View,
+  StyleSheet,
+  TextInput,
+  Alert,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { useRouter } from "expo-router";
 import { auth } from "../FirebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { saveUserToFirestore } from "../FirestoreService";
 
-// Reusable Button Component
-const Button: React.FC<{ title: string; backgroundColor: string; textColor: string; onPress: () => void }> = ({ title, backgroundColor, textColor, onPress }) => (
-  <Pressable
-    style={({ pressed }) => [
-      styles.button,
-      { backgroundColor },
-      pressed && styles.buttonHover,
-    ]}
-    onPress={onPress}>
-    <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text>
+// Unified reusable button styled like Login
+const Button: React.FC<{ title: string; onPress: () => void }> = ({ title, onPress }) => (
+  <Pressable style={({ pressed }) => [styles.button, pressed && styles.buttonHover]} onPress={onPress}>
+    <Text style={styles.buttonText}>{title}</Text>
   </Pressable>
 );
 
@@ -23,7 +27,7 @@ const AccountCreation: React.FC = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dob, setDob] = useState("");
-  const [email, setEmail] = useState(""); // ✅ Changed from username to email
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordsMatch, setPasswordsMatch] = useState(true);
@@ -38,157 +42,112 @@ const AccountCreation: React.FC = () => {
       Alert.alert("Error", "Passwords do not match.");
       return;
     }
-  
+
     try {
-      // Register the user with Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-  
-      // Store user details in Firestore
+
       await saveUserToFirestore(user.uid, {
         firstName,
         lastName,
         dob,
-        email, // ✅ Store email instead of username
+        email,
       });
 
       Alert.alert("Success", "Account created successfully!");
-      router.push("/"); // ✅ Redirect to the dashboard or home page
+      router.push("/");
     } catch (error: any) {
       console.error("Sign-up error:", error);
       Alert.alert("Error", error.message || "An unexpected error occurred.");
-    }    
+    }
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={styles.container}
+    >
       <View style={styles.card}>
         <Text style={styles.title}>Create Account</Text>
         <Text style={styles.subtitle}>Join us and enjoy seamless service</Text>
-        
-        <TextInput
-          style={styles.input}
-          placeholder="First Name"
-          placeholderTextColor="gray"
-          value={firstName}
-          onChangeText={setFirstName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Last Name"
-          placeholderTextColor="gray"
-          value={lastName}
-          onChangeText={setLastName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Date of Birth (DD/MM/YYYY)"
-          placeholderTextColor="gray"
-          value={dob}
-          onChangeText={setDob}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="gray"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address" // ✅ Proper input type
-        />
-        <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="gray"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry={true}
-        autoCorrect={false}
-        autoCapitalize="none"
-        textContentType="oneTimeCode" // 🔥 Prevents autofill styling
-      />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        placeholderTextColor="gray"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry={true}
-        autoCorrect={false}
-        autoCapitalize="none"
-        textContentType="oneTimeCode" // 🔥 Prevents autofill styling
-      />
+        <TextInput style={styles.input} placeholder="First Name" placeholderTextColor="#aaa" value={firstName} onChangeText={setFirstName} />
+        <TextInput style={styles.input} placeholder="Last Name" placeholderTextColor="#aaa" value={lastName} onChangeText={setLastName} />
+        <TextInput style={styles.input} placeholder="Date of Birth (DD/MM/YYYY)" placeholderTextColor="#aaa" value={dob} onChangeText={setDob} />
+        <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#aaa" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+        <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#aaa" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
+        <TextInput style={styles.input} placeholder="Confirm Password" placeholderTextColor="#aaa" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry autoCapitalize="none" />
 
         {!passwordsMatch && <Text style={styles.errorText}>Passwords do not match</Text>}
-        
-        <Button title="Sign Up" backgroundColor="#9370DB" textColor="white" onPress={handleSignUp} />
+
+        <Button title="Sign Up" onPress={handleSignUp} />
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
-// ✅ Styling remains the same
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#9370DB',
+    backgroundColor: "#f6f6f6",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
   },
   card: {
-    width: '80%',
-    padding: 20,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    width: "100%",
+    maxWidth: 380,
+    padding: 24,
+    backgroundColor: "white",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 15,
+    elevation: 3,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#9370DB',
-    textAlign: 'center',
-    marginBottom: 10,
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#111",
+    textAlign: "center",
+    marginBottom: 8,
   },
   subtitle: {
-    color: 'gray',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
     marginBottom: 20,
   },
   input: {
-    width: '100%',
-    padding: 10,
+    width: "100%",
+    padding: 14,
     borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 5,
-    marginBottom: 10,
+    borderColor: "#ddd",
+    borderRadius: 14,
+    marginBottom: 14,
     fontSize: 16,
-  },
-  errorInput: {
-    borderColor: 'red',
+    backgroundColor: "#fff",
+    color: "#333",
   },
   errorText: {
-    color: 'red',
+    color: "red",
     fontSize: 14,
+    textAlign: "center",
     marginBottom: 10,
-    textAlign: 'center',
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 8,
-    marginVertical: 5,
+    backgroundColor: "#000",
+    padding: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    marginTop: 10,
   },
   buttonHover: {
-    opacity: 0.7,
+    opacity: 0.8,
   },
   buttonText: {
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 
